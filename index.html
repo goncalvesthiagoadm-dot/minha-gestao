@@ -149,4 +149,49 @@
             foto: imgGlobal
         });
         
-        localStorage
+        localStorage.setItem('compras_pro', JSON.stringify(dados));
+        alert("SALVO COM SUCESSO!");
+        reset(); renderizar(); iniciarGPS();
+    }
+
+    function reset() {
+        document.getElementById('data').valueAsDate = new Date();
+        document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
+        document.getElementById('estabelecimento').value = ''; document.getElementById('valor').value = ''; document.getElementById('obs').value = '';
+        document.getElementById('checkFoto').style.display = 'none'; imgGlobal = "";
+    }
+
+    function renderizar() {
+        const listaDiv = document.getElementById('lista'), dashDiv = document.getElementById('dashCards'), mes = document.getElementById('filtroMes').value;
+        const dados = JSON.parse(localStorage.getItem('compras_pro')) || [];
+        const filtrados = dados.filter(d => d.data.startsWith(mes));
+        
+        const lojas = ["DUBERTO", "RDT", "AVENIDA", "CNPEM", "IACY"];
+        let totais = {}; lojas.forEach(l => totais[l] = filtrados.filter(f => f.loja === l).reduce((a, b) => a + b.valor, 0));
+
+        dashDiv.innerHTML = lojas.map(l => `
+            <div class="card-loja ${l.toLowerCase()} ${lojaFiltro === l ? 'ativo' : ''}" onclick="lojaFiltro = (lojaFiltro === '${l}') ? 'TODAS' : '${l}'; renderizar();">
+                <b>${l}</b><span>R$ ${totais[l].toFixed(2)}</span>
+            </div>
+        `).join('');
+
+        const final = (lojaFiltro === "TODAS") ? filtrados : filtrados.filter(f => f.loja === lojaFiltro);
+        
+        listaDiv.innerHTML = `<h3>HISTÓRICO: ${lojaFiltro}</h3>` + final.reverse().map(i => `
+            <div class="card-item" style="border-left-color: ${cores[i.loja]}">
+                <img src="${i.foto || ''}" class="foto-preview" onclick="window.open(this.src)" onerror="this.style.display='none'">
+                <div style="flex-grow:1">
+                    <span class="tag-loja" style="background: ${cores[i.loja]}">${i.loja}</span>
+                    <b style="display:block; font-size:16px; margin-top:5px;">${i.estab}</b>
+                    <span style="color:var(--cor-duberto); font-weight:800; font-size:14px;">R$ ${i.valor.toFixed(2)}</span>
+                    <div style="font-size:10px; color:#666;">${i.data} ${i.obs ? '• ' + i.obs : ''}</div>
+                    ${i.gps ? `<a href="https://www.google.com/maps/search/?api=1&query=${i.gps}" target="_blank" style="font-size:10px; color:blue; text-decoration:none; font-weight:bold;">📍 VER NO MAPA</a>` : ''}
+                </div>
+                <button style="width:30px; background:none; border:none; color:red; font-size:20px;" onclick="if(confirm('APAGAR?')){const d=JSON.parse(localStorage.getItem('compras_pro'));localStorage.setItem('compras_pro',JSON.stringify(d.filter(x=>x.id!==${i.id})));renderizar();}">✕</button>
+            </div>
+        `).join('');
+    }
+</script>
+
+</body>
+</html>
