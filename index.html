@@ -4,220 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Gestão Business Pro R$</title>
+    <title>GESTÃO BUSINESS R$</title>
     <style>
-        :root { 
-            --cor-principal: #1c2b46; 
-            --cor-destaque: #007AFF; 
-            --cor-fundo: #f2f2f7; 
-            --tamanho-fonte: 16px;
-        }
-
-        body { 
-            font-family: -apple-system, sans-serif; 
-            background: var(--cor-fundo); 
-            padding: 15px; 
-            margin: 0; 
-            font-size: var(--tamanho-fonte);
-        }
-
-        .container { 
-            max-width: 450px; 
-            margin: auto; 
-            background: white; 
-            padding: 20px; 
-            border-radius: 20px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-        }
-
+        :root { --cor-principal: #1c2b46; --cor-destaque: #007AFF; --cor-fundo: #f2f2f7; --tamanho-fonte: 16px; }
+        body { font-family: -apple-system, sans-serif; background: var(--cor-fundo); padding: 15px; margin: 0; font-size: var(--tamanho-fonte); text-transform: uppercase; }
+        .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         h2, h3 { text-align: center; color: var(--cor-principal); font-size: 18px; margin-bottom: 15px; }
-
         @media print { .no-print { display: none !important; } }
-
-        label { display: block; margin-top: 15px; font-size: 12px; color: #8e8e93; text-transform: uppercase; font-weight: bold; }
-        input, select, button { 
-            width: 100%; 
-            padding: 12px; 
-            margin-top: 5px; 
-            border: 1px solid #e5e5ea; 
-            border-radius: 10px; 
-            box-sizing: border-box; 
-            font-size: var(--tamanho-fonte);
-            font-family: inherit;
-        }
-
-        .btn-gps { background: #fff; color: var(--cor-destaque); border: 1px solid var(--cor-destaque); margin-top: 5px; font-weight: 500; }
+        label { display: block; margin-top: 15px; font-size: 12px; color: #8e8e93; font-weight: bold; }
+        input, select, button { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #e5e5ea; border-radius: 10px; box-sizing: border-box; font-size: var(--tamanho-fonte); text-transform: uppercase; }
+        .btn-gps { background: #fff; color: var(--cor-destaque); border: 1px solid var(--cor-destaque); margin-top: 5px; }
         .btn-foto { background: #f8f9fa; color: #555; border: 2px dashed #ccc; margin-top: 10px; }
         .btn-gravar { background: var(--cor-destaque); color: white; border: none; font-weight: bold; margin-top: 20px; height: 50px; }
-        
         .preview-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 10px; display: none; }
-
         .resumo-lojas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
         .loja-total { padding: 10px; background: #f8f9fa; border-radius: 8px; text-align: center; border: 1px solid #eee; }
-
         .item { border-bottom: 1px solid #f2f2f7; padding: 15px 0; display: flex; align-items: center; }
         .foto-hist { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 12px; background: #eee; }
         .info-compra { flex-grow: 1; }
         .btn-apagar { color: #ff3b30; border: none; background: none; font-size: 18px; padding: 10px; }
-        
-        .status-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 5px; }
+        .status-badge { font-size: 11px; padding: 4px 8px; border-radius: 10px; display: inline-block; margin-top: 5px; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h2 class="no-print">Lançar Despesa</h2>
-    
+    <h2 class="no-print">LANÇAR DESPESA</h2>
     <div class="no-print">
-        <label>Data da Compra</label>
+        <label>DATA / LOJA</label>
         <input type="date" id="data">
-
-        <label>Loja (Seu Negócio)</label>
         <select id="loja">
-            <option value="Duberto">Duberto</option>
+            <option value="DUBERTO">DUBERTO</option>
             <option value="RDT">RDT</option>
-            <option value="Avenida">Avenida</option>
-            <option value="Cnpem">Cnpem</option>
-            <option value="Iacy">Iacy</option>
+            <option value="AVENIDA">AVENIDA</option>
+            <option value="CNPEM">CNPEM</option>
+            <option value="IACY">IACY</option>
         </select>
-
-        <label>Local e Valor</label>
+        <label>LOCAL E VALOR</label>
         <div style="display: flex; gap: 8px;">
-            <input type="text" id="estabelecimento" placeholder="Nome do Estabelecimento">
+            <input type="text" id="estabelecimento" placeholder="ONDE?" oninput="this.value = this.value.toUpperCase()">
             <input type="number" id="valor" step="0.01" placeholder="R$">
         </div>
-
-        <label>Localização (GPS)</label>
-        <button type="button" class="btn-gps" onclick="obterGPS()">📍 Capturar Minha Localização Agora</button>
-        <div id="statusGPS" class="status-badge" style="background: #eee; color: #666;">Local não capturado</div>
+        <label>LOCALIZAÇÃO (OPCIONAL)</label>
+        <button type="button" class="btn-gps" onclick="obterGPS()">📍 CAPTURAR LOCAL AGORA</button>
+        <div id="statusGPS" class="status-badge" style="background: #eee;">NÃO CAPTURADO</div>
         <input type="hidden" id="gpsCoords">
-
-        <label>Nota Fiscal</label>
+        <label>NOTA FISCAL</label>
         <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="previewFoto()">
-        <button type="button" class="btn-foto" onclick="document.getElementById('fotoInput').click()">📷 Tirar Foto da Nota</button>
+        <button type="button" class="btn-foto" onclick="document.getElementById('fotoInput').click()">📷 TIRAR FOTO</button>
         <img id="imgPreview" class="preview-img">
-
-        <button onclick="salvarCompra()" class="btn-gravar">SALVAR E NOVO LANÇAMENTO</button>
+        <button onclick="salvarCompra()" class="btn-gravar">SALVAR E NOVO</button>
     </div>
-
     <div style="margin-top:30px; border-top: 2px solid #f2f2f7; padding-top:20px;">
-        <h3>Relatório Mensal</h3>
-        <input type="month" id="filtroMes" onchange="atualizarInterface()" class="no-print">
+        <h3>RELATÓRIO <input type="month" id="filtroMes" onchange="atualizarInterface()" style="width: auto; display: inline-block; padding: 5px;"></h3>
         <div id="resumoLojas" class="resumo-lojas"></div>
     </div>
-
     <div id="listaCompras"></div>
 </div>
-
 <script>
     let fotoBase64 = "";
-
-    window.onload = function() {
-        resetarFormulario();
-        atualizarInterface();
-    };
-
+    window.onload = () => { resetarFormulario(); atualizarInterface(); };
     function obterGPS() {
-        document.getElementById('statusGPS').innerText = "Buscando sinal...";
-        document.getElementById('statusGPS').style.background = "#fff3cd";
-        
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
-                document.getElementById('gpsCoords').value = coords;
-                document.getElementById('statusGPS').innerText = "📍 Localização Fixada!";
-                document.getElementById('statusGPS').style.background = "#d4edda";
-                document.getElementById('statusGPS').style.color = "#155724";
-            }, (error) => {
-                alert("Erro ao obter GPS. Verifique as permissões do Safari.");
-                document.getElementById('statusGPS').innerText = "Erro no GPS";
-            }, { enableHighAccuracy: true });
-        }
+        document.getElementById('statusGPS').innerText = "BUSCANDO...";
+        navigator.geolocation.getCurrentPosition((pos) => {
+            document.getElementById('gpsCoords').value = `${pos.coords.latitude},${pos.coords.longitude}`;
+            document.getElementById('statusGPS').innerText = "📍 LOCALIZAÇÃO FIXADA!";
+            document.getElementById('statusGPS').style.background = "#d4edda";
+        }, () => alert("ATIVE O GPS NAS CONFIGURAÇÕES DO SAFARI."));
     }
-
     function previewFoto() {
         const file = document.getElementById('fotoInput').files[0];
         const reader = new FileReader();
-        reader.onloadend = () => {
-            fotoBase64 = reader.result;
-            document.getElementById('imgPreview').src = fotoBase64;
-            document.getElementById('imgPreview').style.display = 'block';
-        }
+        reader.onloadend = () => { fotoBase64 = reader.result; document.getElementById('imgPreview').src = fotoBase64; document.getElementById('imgPreview').style.display = 'block'; }
         if (file) reader.readAsDataURL(file);
     }
-
     function salvarCompra() {
-        const data = document.getElementById('data').value;
-        const estab = document.getElementById('estabelecimento').value;
-        const valor = parseFloat(document.getElementById('valor').value);
-        const loja = document.getElementById('loja').value;
-        const gps = document.getElementById('gpsCoords').value;
-
-        if(!estab || isNaN(valor)) { alert("Por favor, preencha o local e o valor!"); return; }
-
-        const compra = { id: Date.now(), data, estab, valor, loja, gps, foto: fotoBase64 };
-        let compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
-        compras.push(compra);
+        const data = document.getElementById('data').value, 
+              estab = document.getElementById('estabelecimento').value.toUpperCase(), 
+              valor = parseFloat(document.getElementById('valor').value), 
+              loja = document.getElementById('loja').value, 
+              gps = document.getElementById('gpsCoords').value;
+        if(!estab || isNaN(valor)) { alert("PREENCHA LOCAL E VALOR!"); return; }
+        const compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
+        compras.push({ id: Date.now(), data, estab, valor, loja, gps, foto: fotoBase64 });
         localStorage.setItem('minhasCompras', JSON.stringify(compras));
-
-        alert("Lançamento salvo com sucesso!");
-        resetarFormulario();
-        atualizarInterface();
+        alert("SALVO!"); resetarFormulario(); atualizarInterface();
     }
-
     function resetarFormulario() {
-        const hoje = new Date();
-        document.getElementById('data').valueAsDate = hoje;
+        const hoje = new Date(); document.getElementById('data').valueAsDate = hoje;
         document.getElementById('filtroMes').value = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, '0');
-        document.getElementById('estabelecimento').value = '';
-        document.getElementById('valor').value = '';
-        document.getElementById('gpsCoords').value = '';
-        document.getElementById('statusGPS').innerText = "Local não capturado";
-        document.getElementById('statusGPS').style.background = "#eee";
-        document.getElementById('imgPreview').style.display = 'none';
-        document.getElementById('fotoInput').value = "";
+        document.getElementById('estabelecimento').value = ''; document.getElementById('valor').value = '';
+        document.getElementById('gpsCoords').value = ''; document.getElementById('statusGPS').innerText = "NÃO CAPTURADO";
+        document.getElementById('statusGPS').style.background = "#eee"; document.getElementById('imgPreview').style.display = 'none';
         fotoBase64 = "";
     }
-
-    function apagarCompra(id) {
-        if(confirm("Deseja apagar este registro?")) {
-            let compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
-            localStorage.setItem('minhasCompras', JSON.stringify(compras.filter(c => c.id !== id)));
-            atualizarInterface();
-        }
-    }
-
-    function formatarMoeda(valor) {
-        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
-
+    function apagarCompra(id) { if(confirm("APAGAR?")) { const compras = JSON.parse(localStorage.getItem('minhasCompras')) || []; localStorage.setItem('minhasCompras', JSON.stringify(compras.filter(c => c.id !== id))); atualizarInterface(); } }
+    function formatarMoeda(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).toUpperCase(); }
     function atualizarInterface() {
-        const listaDiv = document.getElementById('listaCompras');
-        const resumoDiv = document.getElementById('resumoLojas');
-        const mes = document.getElementById('filtroMes').value;
-        let compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
-        let filtradas = compras.filter(c => c.data.startsWith(mes));
-
-        let totais = { Duberto:0, RDT:0, Avenida:0, Cnpem:0, Iacy:0 };
-        filtradas.forEach(c => totais[c.loja] += c.valor);
-
-        resumoDiv.innerHTML = Object.keys(totais).map(l => `
-            <div class="loja-total">${l}<br><strong>${formatarMoeda(totais[l])}</strong></div>
-        `).join('');
-
-        listaDiv.innerHTML = '<h3 style="margin-top:25px">Histórico do Mês</h3>' + filtradas.reverse().map(item => `
+        const listaDiv = document.getElementById('listaCompras'), resumoDiv = document.getElementById('resumoLojas'), mes = document.getElementById('filtroMes').value;
+        const compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
+        const filtradas = compras.filter(c => c.data.startsWith(mes));
+        const totais = { DUBERTO:0, RDT:0, AVENIDA:0, CNPEM:0, IACY:0 };
+        filtradas.forEach(c => { if(totais[c.loja] !== undefined) totais[c.loja] += c.valor; });
+        resumoDiv.innerHTML = Object.keys(totais).map(l => `<div class="loja-total">${l}<br><strong>${formatarMoeda(totais[l])}</strong></div>`).join('');
+        listaDiv.innerHTML = '<h3 style="margin-top:25px">HISTÓRICO</h3>' + filtradas.reverse().map(i => `
             <div class="item">
-                ${item.foto ? `<img src="${item.foto}" class="foto-hist" onclick="window.open(this.src)">` : '<div class="foto-hist"></div>'}
-                <div class="info-compra">
-                    <strong>${item.estab}</strong><br>
-                    ${item.loja} • ${formatarMoeda(item.valor)}<br>
-                    ${item.gps ? `<a href="https://www.google.com/maps/search/?api=1&query=${item.gps}" target="_blank" style="font-size:12px; color:blue;">📍 Ver no Google Maps</a>` : '<span style="font-size:12px; color:#999;">Sem localização</span>'}
-                </div>
-                <button class="btn-apagar" onclick="apagarCompra(${item.id})">✕</button>
-            </div>
-        `).join('');
+                ${i.foto ? `<img src="${i.foto}" class="foto-hist" onclick="window.open(this.src)">` : '<div class="foto-hist"></div>'}
+                <div class="info-compra"><strong>${i.estab}</strong><br>${i.loja} • ${formatarMoeda(i.valor)}<br>
+                ${i.gps ? `<a href="https://www.google.com/maps/search/?api=1&query=${i.gps}" target="_blank" style="font-size:12px; color:blue; text-decoration:none;">📍 VER NO MAPA</a>` : ''}</div>
+                <button class="btn-apagar" onclick="apagarCompra(${i.id})">✕</button>
+            </div>`).join('');
     }
 </script>
-
 </body>
 </html>
