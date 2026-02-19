@@ -4,48 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>GESTÃO BUSINESS ELITE</title>
+    <title>GESTÃO BUSINESS PRO</title>
     <style>
         :root { --cor-principal: #1c2b46; --cor-destaque: #007AFF; --cor-fundo: #f2f2f7; --tamanho-fonte: 16px; }
         body { font-family: -apple-system, sans-serif; background: var(--cor-fundo); padding: 15px; margin: 0; font-size: var(--tamanho-fonte); text-transform: uppercase; }
         .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        
         .grid-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         h2, h3 { text-align: center; color: var(--cor-principal); font-size: 18px; margin: 10px 0; }
-        
         label { display: block; margin-top: 12px; font-size: 11px; color: #8e8e93; font-weight: bold; }
-        input, select, button { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #e5e5ea; border-radius: 10px; box-sizing: border-box; font-size: var(--tamanho-fonte); text-transform: uppercase; }
-        
-        /* Estilo dos Cards de Loja */
+        input, select, button, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #e5e5ea; border-radius: 10px; box-sizing: border-box; font-size: var(--tamanho-fonte); text-transform: uppercase; font-family: inherit; }
         .resumo-lojas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .loja-total { padding: 12px; background: #f8f9fa; border-radius: 10px; text-align: center; border: 2px solid transparent; cursor: pointer; transition: 0.2s; }
+        .loja-total { padding: 12px; background: #f8f9fa; border-radius: 10px; text-align: center; border: 2px solid transparent; cursor: pointer; }
         .loja-total.ativo { border-color: var(--cor-destaque); background: #e7f3ff; }
         .loja-total strong { display: block; color: var(--cor-destaque); font-size: 14px; }
-
         .btn-gps { background: #fff; color: var(--cor-destaque); border: 1px solid var(--cor-destaque); }
         .btn-gravar { background: var(--cor-destaque); color: white; border: none; font-weight: bold; height: 50px; margin-top: 20px; }
         .btn-pdf { background: #34c759; color: white; border: none; font-weight: bold; margin-top: 10px; }
-        
         .item { border-bottom: 1px solid #f2f2f7; padding: 15px 0; display: flex; align-items: center; background: white; }
         .foto-hist { width: 55px; height: 55px; object-fit: cover; border-radius: 8px; margin-right: 12px; background: #eee; }
         .info-compra { flex-grow: 1; line-height: 1.4; }
         .btn-apagar { color: #ff3b30; border: none; background: none; font-size: 20px; padding: 0 10px; }
-        
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
 <div class="container">
     <h2 class="no-print">NOVO LANÇAMENTO</h2>
-    
     <div class="no-print">
         <div class="grid-campos">
-            <div>
-                <label>DATA</label>
-                <input type="date" id="data">
-            </div>
-            <div>
-                <label>LOJA</label>
+            <div><label>DATA</label><input type="date" id="data"></div>
+            <div><label>LOJA</label>
                 <select id="loja">
                     <option value="DUBERTO">DUBERTO</option>
                     <option value="RDT">RDT</option>
@@ -55,137 +43,60 @@
                 </select>
             </div>
         </div>
-
         <label>ESTABELECIMENTO E VALOR</label>
         <div style="display: flex; gap: 8px;">
             <input type="text" id="estabelecimento" placeholder="ONDE?" style="flex: 2;" oninput="this.value = this.value.toUpperCase()">
             <input type="number" id="valor" step="0.01" placeholder="R$" style="flex: 1;">
         </div>
-
+        <label>OBSERVAÇÕES</label>
+        <textarea id="obs" rows="2" placeholder="DETALHES DA COMPRA..." oninput="this.value = this.value.toUpperCase()"></textarea>
         <label>LOCALIZAÇÃO EXATA</label>
         <button type="button" class="btn-gps" onclick="obterGPS()">📍 VALIDAR POSIÇÃO ATUAL</button>
-        <input type="hidden" id="gpsCoords">
-        <div id="statusGPS" style="font-size: 10px; text-align: center; margin-top: 4px; color: #8e8e93;">GPS AGUARDANDO...</div>
-
+        <input type="hidden" id="gpsCoords"><div id="statusGPS" style="font-size: 10px; text-align: center; margin-top: 4px; color: #8e8e93;">GPS AGUARDANDO...</div>
         <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="previewFoto()">
         <button type="button" onclick="document.getElementById('fotoInput').click()" style="background: #f0f0f0; margin-top: 10px;">📷 FOTO DA NOTA</button>
         <img id="imgPreview" style="width:100%; border-radius:10px; margin-top:10px; display:none;">
-
         <button onclick="salvarCompra()" class="btn-gravar">SALVAR LANÇAMENTO</button>
     </div>
-
     <div style="margin-top:25px; border-top: 2px solid #eee; padding-top:15px;">
         <h3>RELATÓRIO MENSAL</h3>
         <input type="month" id="filtroMes" onchange="atualizarInterface()" style="margin-bottom:10px;">
-        
-        <label>CLIQUE NA LOJA PARA FILTRAR:</label>
+        <label>FILTRAR POR LOJA:</label>
         <div id="resumoLojas" class="resumo-lojas"></div>
-        
         <button onclick="window.print()" class="btn-pdf no-print">📄 GERAR PDF DO FILTRO</button>
     </div>
-
     <div id="listaCompras"></div>
 </div>
-
 <script>
-    let fotoBase64 = "";
-    let lojaAtiva = "TODAS";
-
+    let fotoBase64 = "", lojaAtiva = "TODAS";
     window.onload = () => { resetarFormulario(); atualizarInterface(); };
-
     function obterGPS() {
-        const status = document.getElementById('statusGPS');
-        status.innerText = "BUSCANDO SATÉLITES (AGUARDE)...";
-        
+        document.getElementById('statusGPS').innerText = "BUSCANDO SATÉLITES...";
         navigator.geolocation.getCurrentPosition((pos) => {
             document.getElementById('gpsCoords').value = `${pos.coords.latitude},${pos.coords.longitude}`;
-            status.innerText = "📍 POSIÇÃO CONFIRMADA COM PRECISÃO!";
-            status.style.color = "#34c759";
-        }, () => {
-            alert("ERRO: ATIVE O GPS E PERMITA O ACESSO NO SAFARI.");
-        }, { enableHighAccuracy: true, timeout: 10000 });
+            document.getElementById('statusGPS').innerText = "📍 POSIÇÃO CONFIRMADA!";
+            document.getElementById('statusGPS').style.color = "#34c759";
+        }, () => alert("ATIVE O GPS NO SAFARI."), { enableHighAccuracy: true });
     }
-
     function previewFoto() {
         const file = document.getElementById('fotoInput').files[0];
         const reader = new FileReader();
-        reader.onloadend = () => { 
-            fotoBase64 = reader.result; 
-            document.getElementById('imgPreview').src = fotoBase64; 
-            document.getElementById('imgPreview').style.display = 'block'; 
-        }
+        reader.onloadend = () => { fotoBase64 = reader.result; document.getElementById('imgPreview').src = fotoBase64; document.getElementById('imgPreview').style.display = 'block'; }
         if (file) reader.readAsDataURL(file);
     }
-
     function salvarCompra() {
-        const data = document.getElementById('data').value, 
-              estab = document.getElementById('estabelecimento').value.toUpperCase(), 
-              valor = parseFloat(document.getElementById('valor').value), 
-              loja = document.getElementById('loja').value, 
-              gps = document.getElementById('gpsCoords').value;
-
+        const data = document.getElementById('data').value, estab = document.getElementById('estabelecimento').value.toUpperCase(), valor = parseFloat(document.getElementById('valor').value), loja = document.getElementById('loja').value, obs = document.getElementById('obs').value.toUpperCase(), gps = document.getElementById('gpsCoords').value;
         if(!estab || isNaN(valor)) { alert("PREENCHA OS CAMPOS!"); return; }
-
         const compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
-        compras.push({ id: Date.now(), data, estab, valor, loja, gps, foto: fotoBase64 });
+        compras.push({ id: Date.now(), data, estab, valor, loja, obs, gps, foto: fotoBase64 });
         localStorage.setItem('minhasCompras', JSON.stringify(compras));
-
-        alert("SUCESSO!");
-        resetarFormulario();
-        atualizarInterface();
+        alert("SALVO!"); resetarFormulario(); atualizarInterface();
     }
-
     function resetarFormulario() {
-        const hoje = new Date();
-        document.getElementById('data').valueAsDate = hoje;
+        const hoje = new Date(); document.getElementById('data').valueAsDate = hoje;
         document.getElementById('filtroMes').value = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, '0');
-        document.getElementById('estabelecimento').value = ''; 
-        document.getElementById('valor').value = '';
-        document.getElementById('gpsCoords').value = '';
-        document.getElementById('statusGPS').innerText = "GPS AGUARDANDO...";
-        document.getElementById('imgPreview').style.display = 'none';
+        document.getElementById('estabelecimento').value = ''; document.getElementById('valor').value = ''; document.getElementById('obs').value = '';
+        document.getElementById('gpsCoords').value = ''; document.getElementById('statusGPS').innerText = "GPS AGUARDANDO..."; document.getElementById('imgPreview').style.display = 'none';
         fotoBase64 = "";
     }
-
-    function filtrarLoja(nome) {
-        lojaAtiva = (lojaAtiva === nome) ? "TODAS" : nome;
-        atualizarInterface();
-    }
-
-    function formatarMoeda(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-
-    function atualizarInterface() {
-        const listaDiv = document.getElementById('listaCompras'), resumoDiv = document.getElementById('resumoLojas'), mes = document.getElementById('filtroMes').value;
-        const compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
-        const filtradasMes = compras.filter(c => c.data.startsWith(mes));
-        
-        const nomesLojas = ["DUBERTO", "RDT", "AVENIDA", "CNPEM", "IACY"];
-        let totais = {}; 
-        nomesLojas.forEach(n => totais[n] = 0);
-        filtradasMes.forEach(c => { if(totais[c.loja] !== undefined) totais[c.loja] += c.valor; });
-
-        resumoDiv.innerHTML = nomesLojas.map(l => `
-            <div class="loja-total ${lojaAtiva === l ? 'ativo' : ''}" onclick="filtrarLoja('${l}')">
-                ${l}<br><strong>${formatarMoeda(totais[l])}</strong>
-            </div>
-        `).join('');
-
-        const listaFinal = (lojaAtiva === "TODAS") ? filtradasMes : filtradasMes.filter(c => c.loja === lojaAtiva);
-
-        listaDiv.innerHTML = `<h3 style="margin-top:20px">${lojaAtiva === "TODAS" ? "GERAL" : "FILTRO: " + lojaAtiva}</h3>` + 
-        listaFinal.reverse().map(i => `
-            <div class="item">
-                <img src="${i.foto || ''}" class="foto-hist" onclick="window.open(this.src)" onerror="this.style.display='none'">
-                <div class="info-compra">
-                    <strong>${i.estab}</strong><br>
-                    <small>${i.loja} • ${i.data}</small><br>
-                    <strong>${formatarMoeda(i.valor)}</strong><br>
-                    ${i.gps ? `<a href="https://www.google.com/maps/search/?api=1&query=${i.gps}" target="_blank" style="font-size:10px; color:blue; text-decoration:none;">📍 LOCALIZAÇÃO</a>` : ''}
-                </div>
-                <button class="btn-apagar" onclick="if(confirm('APAGAR?')){const c=JSON.parse(localStorage.getItem('minhasCompras'));localStorage.setItem('minhasCompras',JSON.stringify(c.filter(x=>x.id!==${i.id})));atualizarInterface();}">✕</button>
-            </div>
-        `).join('');
-    }
-</script>
-</body>
-</html>
+    function filtrarLoja(nome) { lojaAtiva = (lojaAtiva === nome) ? "TODAS"
