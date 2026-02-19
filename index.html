@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>GESTÃO BUSINESS ELITE V2</title>
+    <title>GESTÃO BUSINESS ELITE V3</title>
     <style>
         :root { --cor-principal: #1c2b46; --cor-destaque: #007AFF; --cor-fundo: #f2f2f7; --tamanho-fonte: 16px; }
         body { font-family: -apple-system, sans-serif; background: var(--cor-fundo); padding: 15px; margin: 0; font-size: var(--tamanho-fonte); text-transform: uppercase; }
@@ -15,12 +15,12 @@
         .resumo-lojas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
         .loja-total { padding: 12px; background: #f8f9fa; border-radius: 10px; text-align: center; border: 2px solid transparent; cursor: pointer; }
         .loja-total.ativo { border-color: var(--cor-destaque); background: #e7f3ff; }
-        .btn-gps { background: #fff; color: var(--cor-destaque); border: 1px solid var(--cor-destaque); font-weight: bold; }
         .btn-gravar { background: var(--cor-destaque); color: white; border: none; font-weight: bold; height: 55px; margin-top: 20px; font-size: 18px; }
         .item { border-bottom: 1px solid #f2f2f7; padding: 15px 0; display: flex; align-items: center; background: white; }
         .foto-hist { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 12px; border: 1px solid #ddd; }
         .info-compra { flex-grow: 1; line-height: 1.4; }
         .btn-apagar { color: #ff3b30; border: none; background: none; font-size: 22px; padding: 0 10px; }
+        .btn-perigo { background: #fff; color: #ff3b30; border: 1px solid #ff3b30; margin-top: 40px; font-size: 12px; padding: 8px; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
@@ -48,14 +48,13 @@
         <label>OBSERVAÇÕES</label>
         <textarea id="obs" rows="2" placeholder="DETALHES..." oninput="this.value = this.value.toUpperCase()"></textarea>
         
-        <label>LOCALIZAÇÃO</label>
-        <button type="button" class="btn-gps" onclick="obterGPS()">📍 VALIDAR POSIÇÃO ATUAL</button>
-        <input type="hidden" id="gpsCoords"><div id="statusGPS" style="font-size: 10px; text-align: center; margin-top: 4px; color: #8e8e93;">GPS AGUARDANDO...</div>
+        <div id="statusGPS" style="font-size: 10px; text-align: center; margin-top: 10px; color: #007AFF; font-weight: bold;">🛰️ BUSCANDO GPS AUTOMÁTICO...</div>
+        <input type="hidden" id="gpsCoords">
 
-        <label>FOTOS (NOTA E LUGAR)</label>
-        <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="processarFoto(this, 'nf')">
-        <button type="button" onclick="document.getElementById('fotoInput').click()" style="background: #f0f0f0;">📷 FOTO DA NOTA FISCAL</button>
-        <div id="checkNF" style="display:none; color:green; text-align:center; font-size:12px;">✔️ NOTA CAPTURADA</div>
+        <label>NOTA FISCAL</label>
+        <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="processarFoto(this)">
+        <button type="button" onclick="document.getElementById('fotoInput').click()" style="background: #f0f0f0;">📷 TIRAR FOTO DA NOTA</button>
+        <div id="checkNF" style="display:none; color:green; text-align:center; font-size:12px; margin-top:5px;">✔️ NOTA PRONTA</div>
 
         <button onclick="salvarCompra()" class="btn-gravar">SALVAR LANÇAMENTO</button>
     </div>
@@ -66,22 +65,30 @@
         <div id="resumoLojas" class="resumo-lojas"></div>
         <button onclick="window.print()" style="background:#34c759; color:white; border:none; margin-top:10px; font-weight:bold; padding:10px; border-radius:10px;">📄 GERAR PDF</button>
     </div>
+    
     <div id="listaCompras"></div>
+
+    <button class="no-print btn-perigo" onclick="limparTudo()">⚠️ LIMPAR TODOS OS DADOS DO APP</button>
 </div>
 
 <script>
     let fotoNF = "", lojaAtiva = "TODAS";
 
+    window.onload = () => { 
+        resetarFormulario(); 
+        atualizarInterface();
+        obterGPS(); // Inicia GPS automaticamente
+    };
+
     function obterGPS() {
-        document.getElementById('statusGPS').innerText = "BUSCANDO SATÉLITES...";
         navigator.geolocation.getCurrentPosition((pos) => {
             document.getElementById('gpsCoords').value = `${pos.coords.latitude},${pos.coords.longitude}`;
-            document.getElementById('statusGPS').innerText = "📍 POSIÇÃO CONFIRMADA!";
+            document.getElementById('statusGPS').innerText = "📍 GPS CONECTADO";
             document.getElementById('statusGPS').style.color = "#34c759";
-        }, () => alert("ATIVE O GPS."), { enableHighAccuracy: true });
+        }, null, { enableHighAccuracy: true });
     }
 
-    function processarFoto(input, tipo) {
+    function processarFoto(input) {
         const file = input.files[0];
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -89,7 +96,7 @@
             img.src = e.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const max = 600; // Reduz tamanho para salvar espaço
+                const max = 600;
                 let w = img.width, h = img.height;
                 if (w > h) { if (w > max) { h *= max/w; w = max; } }
                 else { if (h > max) { w *= max/h; h = max; } }
@@ -104,20 +111,32 @@
 
     function salvarCompra() {
         const data = document.getElementById('data').value, estab = document.getElementById('estabelecimento').value.toUpperCase(), valor = parseFloat(document.getElementById('valor').value), loja = document.getElementById('loja').value, obs = document.getElementById('obs').value.toUpperCase(), gps = document.getElementById('gpsCoords').value;
-        if(!estab || isNaN(valor)) { alert("PREENCHA TUDO!"); return; }
+        if(!estab || isNaN(valor)) { alert("PREENCHA LOCAL E VALOR!"); return; }
         const compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
         compras.push({ id: Date.now(), data, estab, valor, loja, obs, gps, foto: fotoNF });
         try {
             localStorage.setItem('minhasCompras', JSON.stringify(compras));
-            alert("SALVO!"); resetarFormulario(); atualizarInterface();
-        } catch(e) { alert("ERRO: MEMÓRIA CHEIA. APAGUE LANÇAMENTOS ANTIGOS."); }
+            alert("LANÇAMENTO CONCLUÍDO!"); 
+            resetarFormulario(); 
+            atualizarInterface();
+            obterGPS(); // Reinicia busca para próxima compra
+        } catch(e) { alert("ERRO: MEMÓRIA CHEIA. USE O BOTÃO LIMPAR NO FINAL DA PÁGINA."); }
     }
 
     function resetarFormulario() {
         document.getElementById('data').valueAsDate = new Date();
         document.getElementById('estabelecimento').value = ''; document.getElementById('valor').value = ''; document.getElementById('obs').value = '';
-        document.getElementById('gpsCoords').value = ''; document.getElementById('statusGPS').innerText = "GPS AGUARDANDO...";
+        document.getElementById('gpsCoords').value = ''; document.getElementById('statusGPS').innerText = "🛰️ BUSCANDO GPS...";
+        document.getElementById('statusGPS').style.color = "#007AFF";
         document.getElementById('checkNF').style.display = 'none'; fotoNF = "";
+    }
+
+    function limparTudo() {
+        if(confirm("ATENÇÃO: ISTO APAGARÁ TODO O SEU HISTÓRICO PERMANENTEMENTE. CONTINUAR?")) {
+            localStorage.removeItem('minhasCompras');
+            atualizarInterface();
+            alert("DADOS APAGADOS.");
+        }
     }
 
     function atualizarInterface() {
@@ -133,8 +152,8 @@
             <div class="item">
                 <img src="${i.foto || ''}" class="foto-hist" onclick="window.open(this.src)" onerror="this.style.display='none'">
                 <div class="info-compra"><strong>${i.estab}</strong><br><small>${i.loja} • R$ ${i.valor.toFixed(2)}</small><br>
-                ${i.gps ? `<a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${i.gps}" target="_blank" style="font-size:11px; color:blue; font-weight:bold;">📍 VER LOCAL E FACHADA (STREET VIEW)</a>` : ''}</div>
-                <button class="btn-apagar" onclick="if(confirm('APAGAR?')){const c=JSON.parse(localStorage.getItem('minhasCompras'));localStorage.setItem('minhasCompras',JSON.stringify(c.filter(x=>x.id!==${i.id})));atualizarInterface();}">✕</button>
+                ${i.gps ? `<a href="http://googleusercontent.com/maps.google.com/maps?q=${i.gps}" target="_blank" style="font-size:11px; color:blue; font-weight:bold;">📍 VER LOCAL E FACHADA</a>` : ''}</div>
+                <button class="btn-apagar" onclick="if(confirm('APAGAR ESTE ITEM?')){const c=JSON.parse(localStorage.getItem('minhasCompras'));localStorage.setItem('minhasCompras',JSON.stringify(c.filter(x=>x.id!==${i.id})));atualizarInterface();}">✕</button>
             </div>`).join('');
     }
 </script>
