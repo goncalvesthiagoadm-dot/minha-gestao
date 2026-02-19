@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Gestão Business R$</title>
+    <style>
+        :root { 
+            --cor-principal: #1c2b46; 
+            --cor-destaque: #007AFF; 
+            --cor-fundo: #f2f2f7; 
+            --tamanho-fonte: 16px;
+        }
+
+        body { 
+            font-family: -apple-system, sans-serif; 
+            background: var(--cor-fundo); 
+            padding: 15px; 
+            margin: 0; 
+            font-size: var(--tamanho-fonte);
+        }
+
+        .container { 
+            max-width: 450px; 
+            margin: auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 20px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        }
+
+        h2, h3 { text-align: center; color: var(--cor-principal); font-size: 18px; margin-bottom: 15px; }
+
+        @media print {
+            .no-print, h2, label, .btn-foto, .btn-gravar, #statusGPS, #fotoInput, .btn-apagar { display: none !important; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; max-width: 100%; }
+        }
+
+        label { display: block; margin-top: 15px; font-size: 12px; color: #8e8e93; text-transform: uppercase; font-weight: bold; }
+        input, select, button { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 5px; 
+            border: 1px solid #e5e5ea; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-size: var(--tamanho-fonte);
+            font-family: inherit;
+        }
+
+        .btn-foto { background: #f8f9fa; color: #555; border: 2px dashed #ccc; margin-top: 10px; }
+        .btn-gravar { background: var(--cor-destaque); color: white; border: none; font-weight: bold; margin-top: 15px; }
+        .btn-pdf { background: #34c759; color: white; border: none; font-weight: bold; margin-top: 10px; }
+        
+        .preview-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 10px; display: none; }
+
+        .resumo-lojas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .loja-total { 
+            padding: 10px; 
+            background: #f8f9fa; 
+            border-radius: 8px; 
+            text-align: center; 
+            font-size: var(--tamanho-fonte);
+            border: 1px solid #eee; 
+        }
+
+        .item { 
+            border-bottom: 1px solid #f2f2f7; 
+            padding: 15px 0; 
+            font-size: var(--tamanho-fonte);
+            display: flex;
+            align-items: center;
+        }
+
+        .foto-hist { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 12px; background: #eee; flex-shrink: 0; }
+        .info-compra { flex-grow: 1; }
+        .btn-apagar { color: #ff3b30; border: none; background: none; font-size: 14px; font-weight: bold; margin-left: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="no-print">Lançar Despesa</h2>
+    
+    <div class="no-print">
+        <label>Data</label>
+        <input type="date" id="data">
+
+        <label>Loja Destino</label>
+        <select id="loja">
+            <option value="Duberto">Duberto</option>
+            <option value="RDT">RDT</option>
+            <option value="Avenida">Avenida</option>
+            <option value="Cnpem">Cnpem</option>
+            <option value="Iacy">Iacy</option>
+        </select>
+
+        <label>Local e Valor</label>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="estabelecimento" placeholder="Onde?">
+            <input type="number" id="valor" step="0.01" placeholder="R$">
+        </div>
+
+        <label>Nota Fiscal</label>
+        <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="previewFoto()">
+        <button type="button" class="btn-foto" onclick="document.getElementById('fotoInput').click()">📷 Tirar Foto da Nota</button>
+        <img id="imgPreview" class="preview-img">
+
+        <button onclick="salvarCompra()" class="btn-gravar">SALVAR LANÇAMENTO</button>
+    </div>
+
+    <div style="margin-top:30px; border-top: 2px solid #f2f2f7; padding-top:20px;">
+        <h3>Relatório Mensal</h3>
+        <input type="month" id="filtroMes" onchange="atualizarInterface()" class="no-print">
+        <div id="resumoLojas" class="resumo-lojas"></div>
+        <button onclick="window.print()" class="btn-pdf no-print">📄 Gerar PDF (Relatório)</button>
+    </div>
+
+    <div id="listaCompras"></div>
+</div>
+
+<script>
+    let latLong = "";
+    let fotoBase64 = "";
+
+    window.onload = function() {
+        const hoje = new Date();
+        document.getElementById('data').valueAsDate = hoje;
+        document.getElementById('filtroMes').value = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, '0');
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                latLong = `${pos.coords.latitude},${pos.coords.longitude}`;
+            });
+        }
+        atualizarInterface();
+    };
+
+    function previewFoto() {
+        const file = document.getElementById('fotoInput').files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            fotoBase64 = reader.result;
+            document.getElementById('imgPreview').src = fotoBase64;
+            document.getElementById('imgPreview').style.display = 'block';
+        }
+        if (file) reader.readAsDataURL(file);
+    }
+
+    function salvarCompra() {
+        const data = document.getElementById('data').value;
+        const estab = document.getElementById('estabelecimento').value;
+        const valor = parseFloat(document.getElementById('valor').value);
+        const loja = document.getElementById('loja').value;
+
+        if(!estab || isNaN(valor)) { alert("Preencha Local e Valor!"); return; }
+
+        const compra = { id: Date.now(), data, estab, valor, loja, gps: latLong, foto: fotoBase64 };
+        let compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
+        compras.push(compra);
+        localStorage.setItem('minhasCompras', JSON.stringify(compras));
+
+        document.getElementById('estabelecimento').value = '';
+        document.getElementById('valor').value = '';
+        document.getElementById('imgPreview').style.display = 'none';
+        fotoBase64 = "";
+        atualizarInterface();
+    }
+
+    function apagarCompra(id) {
+        if(confirm("Deseja apagar este registro?")) {
+            let compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
+            localStorage.setItem('minhasCompras', JSON.stringify(compras.filter(c => c.id !== id)));
+            atualizarInterface();
+        }
+    }
+
+    // Função para formatar números para o padrão brasileiro (R$ 1.234,56)
+    function formatarMoeda(valor) {
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function atualizarInterface() {
+        const listaDiv = document.getElementById('listaCompras');
+        const resumoDiv = document.getElementById('resumoLojas');
+        const mes = document.getElementById('filtroMes').value;
+        let compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
+        let filtradas = compras.filter(c => c.data.startsWith(mes));
+
+        let totais = { Duberto:0, RDT:0, Avenida:0, Cnpem:0, Iacy:0 };
+        filtradas.forEach(c => totais[c.loja] += c.valor);
+
+        resumoDiv.innerHTML = Object.keys(totais).map(l => `
+            <div class="loja-total">${l}<br><strong>${formatarMoeda(totais[l])}</strong></div>
+        `).join('');
+
+        listaDiv.innerHTML = '<h3 style="margin-top:25px">Histórico do Mês</h3>' + filtradas.reverse().map(item => `
+            <div class="item">
+                ${item.foto ? `<img src="${item.foto}" class="foto-hist" onclick="window.open(this.src)">` : '<div class="foto-hist"></div>'}
+                <div class="info-compra">
+                    <strong>${item.estab}</strong><br>
+                    ${item.loja} • ${formatarMoeda(item.valor)}
+                </div>
+                <button class="btn-apagar" onclick="apagarCompra(${item.id})">✕</button>
+            </div>
+        `).join('');
+    }
+</script>
+
+</body>
+</html>
