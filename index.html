@@ -4,47 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>SISTEMA GESTÃO PRO</title>
+    <title>SISTEMA GESTÃO PREMIUM</title>
     <style>
         :root { 
-            --principal: #1c2b46; 
-            --destaque: #007AFF; 
-            --fundo: #f0f2f5; 
-            --sucesso: #34c759;
+            --fundo: #f8f9fc; 
+            --texto: #2e3a59;
+            --cor-duberto: #4e73df; /* Azul */
+            --cor-rdt: #1cc88a;     /* Verde */
+            --cor-avenida: #f6c23e; /* Amarelo */
+            --cor-cnpem: #e74a3b;   /* Vermelho */
+            --cor-iacy: #8e44ad;    /* Roxo */
             --fonte: 16px;
         }
 
-        body { font-family: -apple-system, sans-serif; background: var(--fundo); padding: 15px; margin: 0; font-size: var(--fonte); text-transform: uppercase; color: #333; }
-        .container { max-width: 480px; margin: auto; background: white; padding: 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--fundo); padding: 15px; margin: 0; font-size: var(--fonte); text-transform: uppercase; color: var(--texto); }
+        .container { max-width: 480px; margin: auto; background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
         
-        h2, h3 { text-align: center; color: var(--principal); letter-spacing: 1px; margin: 15px 0; }
-        label { display: block; margin-top: 15px; font-size: 11px; color: #8e8e93; font-weight: 800; }
+        h2, h3 { text-align: center; font-weight: 800; letter-spacing: 1px; color: #1a202c; margin-bottom: 20px; }
+        label { display: block; margin-top: 15px; font-size: 10px; color: #a0aec0; font-weight: 900; }
         
-        input, select, button, textarea { width: 100%; padding: 14px; margin-top: 6px; border: 1px solid #e5e5ea; border-radius: 12px; box-sizing: border-box; font-size: var(--fonte); text-transform: uppercase; transition: 0.3s; }
-        
-        /* Dashboard de Gastos */
-        .dashboard { background: #f8f9fa; padding: 15px; border-radius: 18px; margin: 20px 0; border: 1px solid #eee; }
-        .barra-loja { margin-bottom: 12px; cursor: pointer; }
-        .barra-info { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
-        .barra-container { background: #e9ecef; height: 10px; border-radius: 5px; overflow: hidden; }
-        .barra-progresso { background: var(--destaque); height: 100%; transition: width 0.5s ease-in-out; }
-        .barra-loja.ativo .barra-progresso { background: var(--principal); }
+        input, select, button, textarea { width: 100%; padding: 15px; margin-top: 6px; border: 2px solid #edf2f7; border-radius: 15px; box-sizing: border-box; font-size: var(--fonte); text-transform: uppercase; font-weight: 600; }
+        input:focus { border-color: #4e73df; outline: none; }
 
-        .btn-gravar { background: var(--destaque); color: white; border: none; font-weight: 800; height: 60px; margin-top: 25px; box-shadow: 0 4px 15px rgba(0,122,255,0.3); }
+        /* Dashboard de Cores por Loja */
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .card-loja { padding: 15px; border-radius: 15px; color: white; text-align: center; cursor: pointer; border: 3px solid transparent; transition: 0.3s; }
+        .card-loja b { font-size: 10px; opacity: 0.9; display: block; }
+        .card-loja span { font-size: 14px; font-weight: 800; }
         
-        /* Histórico Premium */
-        .card-item { background: white; border-radius: 15px; padding: 15px; margin-top: 12px; border: 1px solid #f0f0f0; display: flex; align-items: flex-start; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .foto-preview { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; margin-right: 15px; background: #f0f0f0; flex-shrink: 0; border: 1px solid #eee; }
-        .detalhes { flex-grow: 1; }
-        .detalhes b { font-size: 17px; color: var(--principal); display: block; }
-        .detalhes i { font-size: 11px; color: #999; font-style: normal; }
-        .valor-tag { color: var(--destaque); font-weight: 800; font-size: 15px; margin-top: 5px; display: block; }
-        .btn-maps { display: inline-block; margin-top: 8px; color: white; background: var(--principal); padding: 5px 10px; border-radius: 8px; font-size: 10px; text-decoration: none; font-weight: bold; }
-        .btn-delete { position: absolute; top: 10px; right: 10px; color: #ff3b30; font-size: 20px; border: none; background: none; padding: 5px; }
+        .duberto { background: var(--cor-duberto); }
+        .rdt { background: var(--cor-rdt); }
+        .avenida { background: var(--cor-avenida); }
+        .cnpem { background: var(--cor-cnpem); }
+        .iacy { background: var(--cor-iacy); }
+        
+        .card-loja.ativo { border-color: #2e3a59; transform: scale(1.05); }
 
-        .btn-limpar { background: none; color: #ff3b30; border: 1px solid #ff3b30; margin-top: 50px; font-size: 11px; padding: 10px; opacity: 0.6; }
-
-        @media print { .no-print { display: none !important; } .container { box-shadow: none; border: none; } }
+        .btn-gravar { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color: white; border: none; height: 60px; margin-top: 25px; border-radius: 18px; box-shadow: 0 10px 20px rgba(78,115,223,0.2); }
+        
+        .card-item { background: white; border-radius: 20px; padding: 15px; margin-top: 15px; display: flex; align-items: center; border-left: 6px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .foto-preview { width: 65px; height: 65px; border-radius: 12px; object-fit: cover; margin-right: 15px; border: 1px solid #eee; }
+        
+        .tag-loja { font-size: 9px; padding: 3px 8px; border-radius: 20px; color: white; font-weight: bold; }
+        
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
@@ -66,41 +69,39 @@
             </div>
         </div>
 
-        <label>ESTABELECIMENTO / VALOR</label>
+        <label>VALOR E LOCAL</label>
         <div style="display: flex; gap: 8px;">
             <input type="text" id="estabelecimento" placeholder="ONDE?" style="flex: 2;" oninput="this.value = this.value.toUpperCase()">
             <input type="number" id="valor" step="0.01" placeholder="R$" style="flex: 1;">
         </div>
 
-        <label>OBSERVAÇÕES ADICIONAIS</label>
-        <textarea id="obs" rows="2" placeholder="EX: PARCELADO, ESTOQUE..." oninput="this.value = this.value.toUpperCase()"></textarea>
+        <label>OBSERVAÇÕES</label>
+        <textarea id="obs" rows="2" placeholder="DETALHES..." oninput="this.value = this.value.toUpperCase()"></textarea>
 
-        <div id="statusGPS" style="font-size: 11px; text-align: center; margin: 15px 0; color: var(--destaque); font-weight: bold;">🛰️ BUSCANDO GPS...</div>
+        <div id="statusGPS" style="font-size: 11px; text-align: center; margin: 15px 0; color: #4e73df; font-weight: bold;">🛰️ BUSCANDO GPS...</div>
         <input type="hidden" id="gpsCoords">
 
         <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="processarImagem(this)">
-        <button type="button" onclick="document.getElementById('fotoInput').click()" style="background: #f8f9fa; border: 2px dashed #ccc; color: #666;">📷 TIRAR FOTO DA NOTA</button>
-        <div id="checkFoto" style="display:none; color:var(--sucesso); text-align:center; font-size:12px; margin-top:5px; font-weight:bold;">✔️ IMAGEM PROCESSADA</div>
+        <button type="button" onclick="document.getElementById('fotoInput').click()" style="background: #f8f9fa; border: 2px dashed #d1d3e2; color: #6e707e;">📷 FOTO DA NOTA FISCAL</button>
+        <div id="checkFoto" style="display:none; color:#1cc88a; text-align:center; font-size:12px; margin-top:5px; font-weight:bold;">✔️ IMAGEM OK</div>
 
-        <button onclick="salvar()" class="btn-gravar">SALVAR LANÇAMENTO</button>
+        <button onclick="salvar()" class="btn-gravar">SALVAR NO SISTEMA</button>
     </div>
 
-    <div style="margin-top:30px; border-top: 3px solid var(--fundo); padding-top:20px;">
-        <h3>PAINEL DE GASTOS</h3>
-        <input type="month" id="filtroMes" onchange="renderizar()" style="margin-bottom:15px;">
+    <div style="margin-top:35px; border-top: 3px solid #f0f2f5; padding-top:20px;">
+        <h3>RESUMO MENSAL</h3>
+        <input type="month" id="filtroMes" onchange="renderizar()">
         
-        <div class="dashboard" id="dashBarras"></div>
-        
-        <button onclick="window.print()" style="background:var(--sucesso); color:white; border:none; font-weight:bold; height: 45px;">📄 GERAR RELATÓRIO PDF</button>
+        <div class="dashboard" id="dashCards"></div>
+        <button onclick="window.print()" style="background:#1cc88a; color:white; border:none; font-weight:bold; height: 45px; border-radius: 12px; margin-bottom: 20px;">📄 GERAR RELATÓRIO PDF</button>
     </div>
 
     <div id="lista"></div>
-
-    <button class="no-print btn-limpar" onclick="limparTudo()">APAGAR TODO O HISTÓRICO DO APP</button>
 </div>
 
 <script>
     let imgGlobal = "", lojaFiltro = "TODAS";
+    const cores = { DUBERTO: "var(--cor-duberto)", RDT: "var(--cor-rdt)", AVENIDA: "var(--cor-avenida)", CNPEM: "var(--cor-cnpem)", IACY: "var(--cor-iacy)" };
 
     window.onload = () => { reset(); renderizar(); iniciarGPS(); };
 
@@ -108,8 +109,7 @@
         navigator.geolocation.getCurrentPosition((p) => {
             document.getElementById('gpsCoords').value = `${p.coords.latitude},${p.coords.longitude}`;
             const s = document.getElementById('statusGPS');
-            s.innerText = "📍 GPS CONECTADO E PRONTO";
-            s.style.color = "#34c759";
+            s.innerText = "📍 GPS CONECTADO"; s.style.color = "#1cc88a";
         }, null, { enableHighAccuracy: true });
     }
 
@@ -136,7 +136,7 @@
     function salvar() {
         const estab = document.getElementById('estabelecimento').value.toUpperCase();
         const valor = parseFloat(document.getElementById('valor').value);
-        if(!estab || isNaN(valor)) return alert("PREENCHA OS CAMPOS OBRIGATÓRIOS!");
+        if(!estab || isNaN(valor)) return alert("PREENCHA OS CAMPOS!");
 
         const dados = JSON.parse(localStorage.getItem('compras_pro')) || [];
         dados.push({
@@ -149,69 +149,4 @@
             foto: imgGlobal
         });
         
-        try {
-            localStorage.setItem('compras_pro', JSON.stringify(dados));
-            alert("REGISTRADO COM SUCESSO!");
-            reset(); renderizar(); iniciarGPS();
-        } catch(e) { alert("MEMÓRIA CHEIA!"); }
-    }
-
-    function reset() {
-        document.getElementById('data').valueAsDate = new Date();
-        document.getElementById('filtroMes').value = new Date().toISOString().substring(0, 7);
-        document.getElementById('estabelecimento').value = ''; 
-        document.getElementById('valor').value = ''; 
-        document.getElementById('obs').value = '';
-        document.getElementById('checkFoto').style.display = 'none';
-        imgGlobal = "";
-    }
-
-    function renderizar() {
-        const listaDiv = document.getElementById('lista'), dashDiv = document.getElementById('dashBarras'), mes = document.getElementById('filtroMes').value;
-        const dados = JSON.parse(localStorage.getItem('compras_pro')) || [];
-        const filtrados = dados.filter(d => d.data.startsWith(mes));
-        
-        const lojas = ["DUBERTO", "RDT", "AVENIDA", "CNPEM", "IACY"];
-        let totais = {}; let maxGasto = 0;
-        lojas.forEach(l => {
-            totais[l] = filtrados.filter(f => f.loja === l).reduce((a, b) => a + b.valor, 0);
-            if(totais[l] > maxGasto) maxGasto = totais[l];
-        });
-
-        dashDiv.innerHTML = lojas.map(l => {
-            const perc = maxGasto > 0 ? (totais[l] / maxGasto) * 100 : 0;
-            return `
-                <div class="barra-loja ${lojaFiltro === l ? 'ativo' : ''}" onclick="lojaFiltro = (lojaFiltro === '${l}') ? 'TODAS' : '${l}'; renderizar();">
-                    <div class="barra-info"><span>${l}</span><span>R$ ${totais[l].toFixed(2)}</span></div>
-                    <div class="barra-container"><div class="barra-progresso" style="width: ${perc}%"></div></div>
-                </div>
-            `;
-        }).join('');
-
-        const final = (lojaFiltro === "TODAS") ? filtrados : filtrados.filter(f => f.loja === lojaFiltro);
-        
-        listaDiv.innerHTML = `<h3>EXIBINDO: ${lojaFiltro}</h3>` + final.reverse().map(i => `
-            <div class="card-item">
-                <img src="${i.foto || ''}" class="foto-preview" onclick="window.open(this.src)" onerror="this.style.display='none'">
-                <div class="detalhes">
-                    <b>${i.estab}</b>
-                    <i>${i.data} • ${i.loja}</i>
-                    <span class="valor-tag">R$ ${i.valor.toFixed(2)}</span>
-                    ${i.obs ? `<div style="font-size:10px; color:#666; margin-top:5px;">📝 ${i.obs}</div>` : ''}
-                    ${i.gps ? `<a href="https://www.google.com/maps?q=${i.gps}" target="_blank" class="btn-maps">📍 LOCALIZAR NO GOOGLE MAPS</a>` : ''}
-                </div>
-                <button class="btn-delete" onclick="if(confirm('APAGAR?')){const d=JSON.parse(localStorage.getItem('compras_pro'));localStorage.setItem('compras_pro',JSON.stringify(d.filter(x=>x.id!==${i.id})));renderizar();}">✕</button>
-            </div>
-        `).join('');
-    }
-
-    function limparTudo() {
-        if(confirm("ISSO APAGARÁ TUDO. TEM CERTEZA?")) {
-            localStorage.removeItem('compras_pro');
-            renderizar();
-        }
-    }
-</script>
-
-</body>
-</html>
+        localStorage
