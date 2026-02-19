@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Gestão Business R$</title>
+    <title>Gestão Business Pro R$</title>
     <style>
         :root { 
             --cor-principal: #1c2b46; 
@@ -32,11 +32,7 @@
 
         h2, h3 { text-align: center; color: var(--cor-principal); font-size: 18px; margin-bottom: 15px; }
 
-        @media print {
-            .no-print, h2, label, .btn-foto, .btn-gravar, #statusGPS, #fotoInput, .btn-apagar { display: none !important; }
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; border: none; max-width: 100%; }
-        }
+        @media print { .no-print { display: none !important; } }
 
         label { display: block; margin-top: 15px; font-size: 12px; color: #8e8e93; text-transform: uppercase; font-weight: bold; }
         input, select, button { 
@@ -50,33 +46,21 @@
             font-family: inherit;
         }
 
+        .btn-gps { background: #fff; color: var(--cor-destaque); border: 1px solid var(--cor-destaque); margin-top: 5px; font-weight: 500; }
         .btn-foto { background: #f8f9fa; color: #555; border: 2px dashed #ccc; margin-top: 10px; }
-        .btn-gravar { background: var(--cor-destaque); color: white; border: none; font-weight: bold; margin-top: 15px; }
-        .btn-pdf { background: #34c759; color: white; border: none; font-weight: bold; margin-top: 10px; }
+        .btn-gravar { background: var(--cor-destaque); color: white; border: none; font-weight: bold; margin-top: 20px; height: 50px; }
         
         .preview-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 10px; display: none; }
 
         .resumo-lojas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .loja-total { 
-            padding: 10px; 
-            background: #f8f9fa; 
-            border-radius: 8px; 
-            text-align: center; 
-            font-size: var(--tamanho-fonte);
-            border: 1px solid #eee; 
-        }
+        .loja-total { padding: 10px; background: #f8f9fa; border-radius: 8px; text-align: center; border: 1px solid #eee; }
 
-        .item { 
-            border-bottom: 1px solid #f2f2f7; 
-            padding: 15px 0; 
-            font-size: var(--tamanho-fonte);
-            display: flex;
-            align-items: center;
-        }
-
-        .foto-hist { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 12px; background: #eee; flex-shrink: 0; }
+        .item { border-bottom: 1px solid #f2f2f7; padding: 15px 0; display: flex; align-items: center; }
+        .foto-hist { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 12px; background: #eee; }
         .info-compra { flex-grow: 1; }
-        .btn-apagar { color: #ff3b30; border: none; background: none; font-size: 14px; font-weight: bold; margin-left: 10px; }
+        .btn-apagar { color: #ff3b30; border: none; background: none; font-size: 18px; padding: 10px; }
+        
+        .status-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -85,10 +69,10 @@
     <h2 class="no-print">Lançar Despesa</h2>
     
     <div class="no-print">
-        <label>Data</label>
+        <label>Data da Compra</label>
         <input type="date" id="data">
 
-        <label>Loja Destino</label>
+        <label>Loja (Seu Negócio)</label>
         <select id="loja">
             <option value="Duberto">Duberto</option>
             <option value="RDT">RDT</option>
@@ -99,43 +83,57 @@
 
         <label>Local e Valor</label>
         <div style="display: flex; gap: 8px;">
-            <input type="text" id="estabelecimento" placeholder="Onde?">
+            <input type="text" id="estabelecimento" placeholder="Nome do Estabelecimento">
             <input type="number" id="valor" step="0.01" placeholder="R$">
         </div>
+
+        <label>Localização (GPS)</label>
+        <button type="button" class="btn-gps" onclick="obterGPS()">📍 Capturar Minha Localização Agora</button>
+        <div id="statusGPS" class="status-badge" style="background: #eee; color: #666;">Local não capturado</div>
+        <input type="hidden" id="gpsCoords">
 
         <label>Nota Fiscal</label>
         <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="previewFoto()">
         <button type="button" class="btn-foto" onclick="document.getElementById('fotoInput').click()">📷 Tirar Foto da Nota</button>
         <img id="imgPreview" class="preview-img">
 
-        <button onclick="salvarCompra()" class="btn-gravar">SALVAR LANÇAMENTO</button>
+        <button onclick="salvarCompra()" class="btn-gravar">SALVAR E NOVO LANÇAMENTO</button>
     </div>
 
     <div style="margin-top:30px; border-top: 2px solid #f2f2f7; padding-top:20px;">
         <h3>Relatório Mensal</h3>
         <input type="month" id="filtroMes" onchange="atualizarInterface()" class="no-print">
         <div id="resumoLojas" class="resumo-lojas"></div>
-        <button onclick="window.print()" class="btn-pdf no-print">📄 Gerar PDF (Relatório)</button>
     </div>
 
     <div id="listaCompras"></div>
 </div>
 
 <script>
-    let latLong = "";
     let fotoBase64 = "";
 
     window.onload = function() {
-        const hoje = new Date();
-        document.getElementById('data').valueAsDate = hoje;
-        document.getElementById('filtroMes').value = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, '0');
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                latLong = `${pos.coords.latitude},${pos.coords.longitude}`;
-            });
-        }
+        resetarFormulario();
         atualizarInterface();
     };
+
+    function obterGPS() {
+        document.getElementById('statusGPS').innerText = "Buscando sinal...";
+        document.getElementById('statusGPS').style.background = "#fff3cd";
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
+                document.getElementById('gpsCoords').value = coords;
+                document.getElementById('statusGPS').innerText = "📍 Localização Fixada!";
+                document.getElementById('statusGPS').style.background = "#d4edda";
+                document.getElementById('statusGPS').style.color = "#155724";
+            }, (error) => {
+                alert("Erro ao obter GPS. Verifique as permissões do Safari.");
+                document.getElementById('statusGPS').innerText = "Erro no GPS";
+            }, { enableHighAccuracy: true });
+        }
+    }
 
     function previewFoto() {
         const file = document.getElementById('fotoInput').files[0];
@@ -153,19 +151,32 @@
         const estab = document.getElementById('estabelecimento').value;
         const valor = parseFloat(document.getElementById('valor').value);
         const loja = document.getElementById('loja').value;
+        const gps = document.getElementById('gpsCoords').value;
 
-        if(!estab || isNaN(valor)) { alert("Preencha Local e Valor!"); return; }
+        if(!estab || isNaN(valor)) { alert("Por favor, preencha o local e o valor!"); return; }
 
-        const compra = { id: Date.now(), data, estab, valor, loja, gps: latLong, foto: fotoBase64 };
+        const compra = { id: Date.now(), data, estab, valor, loja, gps, foto: fotoBase64 };
         let compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
         compras.push(compra);
         localStorage.setItem('minhasCompras', JSON.stringify(compras));
 
+        alert("Lançamento salvo com sucesso!");
+        resetarFormulario();
+        atualizarInterface();
+    }
+
+    function resetarFormulario() {
+        const hoje = new Date();
+        document.getElementById('data').valueAsDate = hoje;
+        document.getElementById('filtroMes').value = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, '0');
         document.getElementById('estabelecimento').value = '';
         document.getElementById('valor').value = '';
+        document.getElementById('gpsCoords').value = '';
+        document.getElementById('statusGPS').innerText = "Local não capturado";
+        document.getElementById('statusGPS').style.background = "#eee";
         document.getElementById('imgPreview').style.display = 'none';
+        document.getElementById('fotoInput').value = "";
         fotoBase64 = "";
-        atualizarInterface();
     }
 
     function apagarCompra(id) {
@@ -176,7 +187,6 @@
         }
     }
 
-    // Função para formatar números para o padrão brasileiro (R$ 1.234,56)
     function formatarMoeda(valor) {
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
@@ -200,7 +210,8 @@
                 ${item.foto ? `<img src="${item.foto}" class="foto-hist" onclick="window.open(this.src)">` : '<div class="foto-hist"></div>'}
                 <div class="info-compra">
                     <strong>${item.estab}</strong><br>
-                    ${item.loja} • ${formatarMoeda(item.valor)}
+                    ${item.loja} • ${formatarMoeda(item.valor)}<br>
+                    ${item.gps ? `<a href="https://www.google.com/maps/search/?api=1&query=${item.gps}" target="_blank" style="font-size:12px; color:blue;">📍 Ver no Google Maps</a>` : '<span style="font-size:12px; color:#999;">Sem localização</span>'}
                 </div>
                 <button class="btn-apagar" onclick="apagarCompra(${item.id})">✕</button>
             </div>
