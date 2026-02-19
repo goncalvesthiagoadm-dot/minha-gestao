@@ -4,32 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>GESTÃO BUSINESS PRO</title>
+    <title>GESTÃO BUSINESS ELITE V2</title>
     <style>
         :root { --cor-principal: #1c2b46; --cor-destaque: #007AFF; --cor-fundo: #f2f2f7; --tamanho-fonte: 16px; }
         body { font-family: -apple-system, sans-serif; background: var(--cor-fundo); padding: 15px; margin: 0; font-size: var(--tamanho-fonte); text-transform: uppercase; }
         .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .grid-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        h2, h3 { text-align: center; color: var(--cor-principal); font-size: 18px; margin: 10px 0; }
         label { display: block; margin-top: 12px; font-size: 11px; color: #8e8e93; font-weight: bold; }
-        input, select, button, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #e5e5ea; border-radius: 10px; box-sizing: border-box; font-size: var(--tamanho-fonte); text-transform: uppercase; font-family: inherit; }
+        input, select, button, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #e5e5ea; border-radius: 10px; box-sizing: border-box; font-size: var(--tamanho-fonte); text-transform: uppercase; }
         .resumo-lojas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
         .loja-total { padding: 12px; background: #f8f9fa; border-radius: 10px; text-align: center; border: 2px solid transparent; cursor: pointer; }
         .loja-total.ativo { border-color: var(--cor-destaque); background: #e7f3ff; }
-        .loja-total strong { display: block; color: var(--cor-destaque); font-size: 14px; }
-        .btn-gps { background: #fff; color: var(--cor-destaque); border: 1px solid var(--cor-destaque); }
-        .btn-gravar { background: var(--cor-destaque); color: white; border: none; font-weight: bold; height: 50px; margin-top: 20px; }
-        .btn-pdf { background: #34c759; color: white; border: none; font-weight: bold; margin-top: 10px; }
+        .btn-gps { background: #fff; color: var(--cor-destaque); border: 1px solid var(--cor-destaque); font-weight: bold; }
+        .btn-gravar { background: var(--cor-destaque); color: white; border: none; font-weight: bold; height: 55px; margin-top: 20px; font-size: 18px; }
         .item { border-bottom: 1px solid #f2f2f7; padding: 15px 0; display: flex; align-items: center; background: white; }
-        .foto-hist { width: 55px; height: 55px; object-fit: cover; border-radius: 8px; margin-right: 12px; background: #eee; }
+        .foto-hist { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 12px; border: 1px solid #ddd; }
         .info-compra { flex-grow: 1; line-height: 1.4; }
-        .btn-apagar { color: #ff3b30; border: none; background: none; font-size: 20px; padding: 0 10px; }
+        .btn-apagar { color: #ff3b30; border: none; background: none; font-size: 22px; padding: 0 10px; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2 class="no-print">NOVO LANÇAMENTO</h2>
+    <h2 class="no-print" style="text-align:center">NOVO LANÇAMENTO</h2>
     <div class="no-print">
         <div class="grid-campos">
             <div><label>DATA</label><input type="date" id="data"></div>
@@ -49,54 +46,97 @@
             <input type="number" id="valor" step="0.01" placeholder="R$" style="flex: 1;">
         </div>
         <label>OBSERVAÇÕES</label>
-        <textarea id="obs" rows="2" placeholder="DETALHES DA COMPRA..." oninput="this.value = this.value.toUpperCase()"></textarea>
-        <label>LOCALIZAÇÃO EXATA</label>
+        <textarea id="obs" rows="2" placeholder="DETALHES..." oninput="this.value = this.value.toUpperCase()"></textarea>
+        
+        <label>LOCALIZAÇÃO</label>
         <button type="button" class="btn-gps" onclick="obterGPS()">📍 VALIDAR POSIÇÃO ATUAL</button>
         <input type="hidden" id="gpsCoords"><div id="statusGPS" style="font-size: 10px; text-align: center; margin-top: 4px; color: #8e8e93;">GPS AGUARDANDO...</div>
-        <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="previewFoto()">
-        <button type="button" onclick="document.getElementById('fotoInput').click()" style="background: #f0f0f0; margin-top: 10px;">📷 FOTO DA NOTA</button>
-        <img id="imgPreview" style="width:100%; border-radius:10px; margin-top:10px; display:none;">
+
+        <label>FOTOS (NOTA E LUGAR)</label>
+        <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="processarFoto(this, 'nf')">
+        <button type="button" onclick="document.getElementById('fotoInput').click()" style="background: #f0f0f0;">📷 FOTO DA NOTA FISCAL</button>
+        <div id="checkNF" style="display:none; color:green; text-align:center; font-size:12px;">✔️ NOTA CAPTURADA</div>
+
         <button onclick="salvarCompra()" class="btn-gravar">SALVAR LANÇAMENTO</button>
     </div>
+
     <div style="margin-top:25px; border-top: 2px solid #eee; padding-top:15px;">
         <h3>RELATÓRIO MENSAL</h3>
-        <input type="month" id="filtroMes" onchange="atualizarInterface()" style="margin-bottom:10px;">
-        <label>FILTRAR POR LOJA:</label>
+        <input type="month" id="filtroMes" onchange="atualizarInterface()">
         <div id="resumoLojas" class="resumo-lojas"></div>
-        <button onclick="window.print()" class="btn-pdf no-print">📄 GERAR PDF DO FILTRO</button>
+        <button onclick="window.print()" style="background:#34c759; color:white; border:none; margin-top:10px; font-weight:bold; padding:10px; border-radius:10px;">📄 GERAR PDF</button>
     </div>
     <div id="listaCompras"></div>
 </div>
+
 <script>
-    let fotoBase64 = "", lojaAtiva = "TODAS";
-    window.onload = () => { resetarFormulario(); atualizarInterface(); };
+    let fotoNF = "", lojaAtiva = "TODAS";
+
     function obterGPS() {
         document.getElementById('statusGPS').innerText = "BUSCANDO SATÉLITES...";
         navigator.geolocation.getCurrentPosition((pos) => {
             document.getElementById('gpsCoords').value = `${pos.coords.latitude},${pos.coords.longitude}`;
             document.getElementById('statusGPS').innerText = "📍 POSIÇÃO CONFIRMADA!";
             document.getElementById('statusGPS').style.color = "#34c759";
-        }, () => alert("ATIVE O GPS NO SAFARI."), { enableHighAccuracy: true });
+        }, () => alert("ATIVE O GPS."), { enableHighAccuracy: true });
     }
-    function previewFoto() {
-        const file = document.getElementById('fotoInput').files[0];
+
+    function processarFoto(input, tipo) {
+        const file = input.files[0];
         const reader = new FileReader();
-        reader.onloadend = () => { fotoBase64 = reader.result; document.getElementById('imgPreview').src = fotoBase64; document.getElementById('imgPreview').style.display = 'block'; }
-        if (file) reader.readAsDataURL(file);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const max = 600; // Reduz tamanho para salvar espaço
+                let w = img.width, h = img.height;
+                if (w > h) { if (w > max) { h *= max/w; w = max; } }
+                else { if (h > max) { w *= max/h; h = max; } }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                fotoNF = canvas.toDataURL('image/jpeg', 0.7);
+                document.getElementById('checkNF').style.display = 'block';
+            }
+        }
+        reader.readAsDataURL(file);
     }
+
     function salvarCompra() {
         const data = document.getElementById('data').value, estab = document.getElementById('estabelecimento').value.toUpperCase(), valor = parseFloat(document.getElementById('valor').value), loja = document.getElementById('loja').value, obs = document.getElementById('obs').value.toUpperCase(), gps = document.getElementById('gpsCoords').value;
-        if(!estab || isNaN(valor)) { alert("PREENCHA OS CAMPOS!"); return; }
+        if(!estab || isNaN(valor)) { alert("PREENCHA TUDO!"); return; }
         const compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
-        compras.push({ id: Date.now(), data, estab, valor, loja, obs, gps, foto: fotoBase64 });
-        localStorage.setItem('minhasCompras', JSON.stringify(compras));
-        alert("SALVO!"); resetarFormulario(); atualizarInterface();
+        compras.push({ id: Date.now(), data, estab, valor, loja, obs, gps, foto: fotoNF });
+        try {
+            localStorage.setItem('minhasCompras', JSON.stringify(compras));
+            alert("SALVO!"); resetarFormulario(); atualizarInterface();
+        } catch(e) { alert("ERRO: MEMÓRIA CHEIA. APAGUE LANÇAMENTOS ANTIGOS."); }
     }
+
     function resetarFormulario() {
-        const hoje = new Date(); document.getElementById('data').valueAsDate = hoje;
-        document.getElementById('filtroMes').value = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, '0');
+        document.getElementById('data').valueAsDate = new Date();
         document.getElementById('estabelecimento').value = ''; document.getElementById('valor').value = ''; document.getElementById('obs').value = '';
-        document.getElementById('gpsCoords').value = ''; document.getElementById('statusGPS').innerText = "GPS AGUARDANDO..."; document.getElementById('imgPreview').style.display = 'none';
-        fotoBase64 = "";
+        document.getElementById('gpsCoords').value = ''; document.getElementById('statusGPS').innerText = "GPS AGUARDANDO...";
+        document.getElementById('checkNF').style.display = 'none'; fotoNF = "";
     }
-    function filtrarLoja(nome) { lojaAtiva = (lojaAtiva === nome) ? "TODAS"
+
+    function atualizarInterface() {
+        const listaDiv = document.getElementById('listaCompras'), resumoDiv = document.getElementById('resumoLojas'), mes = document.getElementById('filtroMes').value;
+        const compras = JSON.parse(localStorage.getItem('minhasCompras')) || [];
+        const filtradas = compras.filter(c => c.data.startsWith(mes));
+        const nomesLojas = ["DUBERTO", "RDT", "AVENIDA", "CNPEM", "IACY"];
+        let totais = {}; nomesLojas.forEach(n => totais[n] = 0);
+        filtradas.forEach(c => totais[c.loja] += c.valor);
+        resumoDiv.innerHTML = nomesLojas.map(l => `<div class="loja-total ${lojaAtiva === l ? 'ativo' : ''}" onclick="lojaAtiva=(lojaAtiva==='${l}')?'TODAS':'${l}';atualizarInterface()">${l}<br><strong>R$ ${totais[l].toFixed(2)}</strong></div>`).join('');
+        const final = (lojaAtiva === "TODAS") ? filtradas : filtradas.filter(c => c.loja === lojaAtiva);
+        listaDiv.innerHTML = `<h3>${lojaAtiva}</h3>` + final.reverse().map(i => `
+            <div class="item">
+                <img src="${i.foto || ''}" class="foto-hist" onclick="window.open(this.src)" onerror="this.style.display='none'">
+                <div class="info-compra"><strong>${i.estab}</strong><br><small>${i.loja} • R$ ${i.valor.toFixed(2)}</small><br>
+                ${i.gps ? `<a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${i.gps}" target="_blank" style="font-size:11px; color:blue; font-weight:bold;">📍 VER LOCAL E FACHADA (STREET VIEW)</a>` : ''}</div>
+                <button class="btn-apagar" onclick="if(confirm('APAGAR?')){const c=JSON.parse(localStorage.getItem('minhasCompras'));localStorage.setItem('minhasCompras',JSON.stringify(c.filter(x=>x.id!==${i.id})));atualizarInterface();}">✕</button>
+            </div>`).join('');
+    }
+</script>
+</body>
+</html>
